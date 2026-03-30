@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMR Pathology Report System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>🏥 EMR Pathology Report Management System</h1>
+            <p class="subtitle">AI-Powered Medical Document Analysis</p>
+        </header>
+
+        <div class="container">
+            <!-- Upload Section -->
+            <section class="card">
+                <h2>📁 Upload Report</h2>
+                <div class="upload-area" id="upload-area">
+                    <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                    <p>Click to select or drag & drop a PDF/Image</p>
+                </div>
+                <button class="btn btn-primary" onclick="uploadFile()">Upload File</button>
+                <div id="upload-status" class="status-message"></div>
+            </section>
+
+            <!-- Search Section -->
+            <section class="card">
+                <h2>🔍 Semantic Search</h2>
+                <input type="text" id="search-query" placeholder="Search for findings, diagnoses, or symptoms..." class="input-field">
+                <button class="btn btn-primary" onclick="searchReports()">Search Reports</button>
+                <div id="search-status" class="status-message"></div>
+            </section>
+
+            <!-- Chatbot Section -->
+            <section class="card">
+                <h2>💬 Ask Medical AI</h2>
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-question" placeholder="Ask a question about the reports..." class="input-field">
+                        <button class="btn btn-primary" onclick="askChatbot()">Send</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="card">
+                <h2>📊 Search Results</h2>
+                <div id="results-section">
+                    <div id="results" class="results-grid"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
