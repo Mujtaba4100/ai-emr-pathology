@@ -7,7 +7,7 @@ from app.models.database_models import Base
 DATABASE_URL = f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
 
 # Create engine
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_engine(DATABASE_URL, echo=False, connect_args={"connect_timeout": 5})
 
 # Create session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -29,5 +29,9 @@ def init_db():
         print(f"Database initialization error: {e}")
         return False
 
-# Create all tables on startup
-Base.metadata.create_all(bind=engine)
+# Try to create tables on startup, but don't fail if PostgreSQL is unavailable
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"⚠️  Database tables could not be created (PostgreSQL may not be running): {str(e)[:100]}")
+
