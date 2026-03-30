@@ -58,3 +58,13 @@ class OCRListResponse(BaseModel):
     status: str
     extracted_text_preview: str
 
+# Text Cleaning Schemas
+class TextCleanResponse(BaseModel):
+    status: str
+    original_preview: str
+    cleaned_preview: str
+    original_length: int
+    cleaned_length: int
+    cleaned_text: str
+    message: str
+

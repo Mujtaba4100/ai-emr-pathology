@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.schemas import MessageResponse, HealthResponse
-from app.routes import auth, upload, ocr
+from app.routes import auth, upload, ocr, text_cleaning
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -23,6 +23,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(upload.router)
 app.include_router(ocr.router)
+app.include_router(text_cleaning.router)
 
 @app.get("/", response_model=MessageResponse)
 async def root():

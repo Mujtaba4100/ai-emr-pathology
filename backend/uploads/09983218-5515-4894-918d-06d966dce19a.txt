@@ -1,0 +1,12 @@
+
+    PATHOLOGY REPORT
+    Patient: John Doe
+    Report Date: 2024-03-30
+    
+    FINDINGS:
+    - Sample analysis shows normal findings
+    - No abnormalities detected
+    
+    CONCLUSION:
+    The tests are within normal limits.
+    
