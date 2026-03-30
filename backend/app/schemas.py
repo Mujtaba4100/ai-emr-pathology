@@ -32,3 +32,29 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+# Upload Schemas
+class FileUploadResponse(BaseModel):
+    file_id: str
+    filename: str
+    file_size: int
+    status: str
+    message: str
+
+class FileListResponse(BaseModel):
+    files: list
+    total: int
+
+# OCR Schemas
+class OCRResponse(BaseModel):
+    file_id: str
+    status: str
+    extracted_text: str
+    character_count: int
+    error_message: Optional[str] = None
+
+class OCRListResponse(BaseModel):
+    file_id: str
+    filename: str
+    status: str
+    extracted_text_preview: str
+

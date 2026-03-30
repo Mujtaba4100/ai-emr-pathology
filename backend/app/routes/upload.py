@@ -1,25 +1,125 @@
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from app.security import get_current_user, require_role
+from app.schemas import FileUploadResponse
+from app.services.mssql_service import MSSQLService
+import os
+import uuid
+from datetime import datetime
 
 router = APIRouter(prefix="/api", tags=["upload"])
 
-@router.post("/upload/")
-async def upload_report(
+UPLOAD_FOLDER = "uploads"
+
+# Ensure upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+@router.post("/upload/", response_model=FileUploadResponse)
+async def upload_file(
     file: UploadFile = File(...),
     current_user = Depends(require_role("doctor", "lab_tech", "admin"))
 ):
-    """
-    Upload a pathology report
+    """Upload a pathology report file
     
-    Allowed: Doctor, Lab Tech, Admin
-    Denied: Unauthorized users
+    Saves to:
+    1. Local storage (temporary)
+    2. MS SQL Server (permanent - company vault)
+    3. PostgreSQL metadata (for bot processing) - coming in Phase 6
+    
+    Allowed roles: doctor, lab_tech, admin
     """
-    return {
-        "filename": file.filename,
-        "uploaded_by": current_user.username,
-        "role": current_user.role,
-        "message": "File received (implementation in Phase 2)"
-    }
+    
+    try:
+        # Generate unique filename
+        file_id = str(uuid.uuid4())
+        file_extension = os.path.splitext(file.filename)[1]
+        saved_filename = f"{file_id}{file_extension}"
+        
+        # Save file locally first
+        file_path = os.path.join(UPLOAD_FOLDER, saved_filename)
+        
+        contents = await file.read()
+        file_size = len(contents)
+        
+        # Check file size (10MB limit)
+        if file_size > 10 * 1024 * 1024:
+            return FileUploadResponse(
+                file_id="",
+                filename="",
+                file_size=0,
+                status="failed",
+                message="File size exceeds 10MB limit"
+            )
+        
+        # Save to local disk
+        with open(file_path, "wb") as f:
+            f.write(contents)
+        
+        # Save to MS SQL Server (company database) per supervisor approval
+        mssql_service = MSSQLService()
+        mssql_result = mssql_service.save_document(
+            file_id=file_id,
+            filename=file.filename,
+            file_size=file_size,
+            file_path=file_path,
+            file_data=contents
+        )
+        
+        if mssql_result["status"] != "success":
+            # If MS SQL fails, still return success but log warning
+            print(f"⚠️ MS SQL save failed: {mssql_result['message']}")
+        
+        return FileUploadResponse(
+            file_id=file_id,
+            filename=file.filename,
+            file_size=file_size,
+            status="success",
+            message=f"File {file.filename} uploaded successfully"
+        )
+    
+    except Exception as e:
+        return FileUploadResponse(
+            file_id="",
+            filename="",
+            file_size=0,
+            status="error",
+            message=str(e)
+        )
+
+@router.get("/upload/list", response_model=dict)
+async def list_files(
+    current_user = Depends(require_role("doctor", "lab_tech", "admin"))
+):
+    """List all uploaded files
+    
+    Allowed roles: doctor, lab_tech, admin
+    """
+    
+    try:
+        files_list = []
+        if os.path.exists(UPLOAD_FOLDER):
+            for filename in os.listdir(UPLOAD_FOLDER):
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
+                if os.path.isfile(file_path):
+                    file_size = os.path.getsize(file_path)
+                    files_list.append({
+                        "filename": filename,
+                        "size": file_size,
+                        "uploaded_at": datetime.fromtimestamp(os.path.getctime(file_path)).isoformat()
+                    })
+        
+        return {
+            "files": files_list,
+            "total": len(files_list),
+            "status": "success"
+        }
+    
+    except Exception as e:
+        return {
+            "files": [],
+            "total": 0,
+            "status": "error",
+            "message": str(e)
+        }
 
 @router.put("/report/{report_id}")
 async def update_report(

@@ -10,7 +10,8 @@ import os
 # Setup
 SECRET_KEY = os.getenv("SECRET_KEY", "change-this-key")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use pbkdf2 as fallback if bcrypt has issues on Windows
+pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Models
