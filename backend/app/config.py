@@ -20,7 +20,8 @@ class Settings(BaseSettings):
     # Google AI API
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
     
-    # PostgreSQL (for text extraction + embeddings)
+    # Neon PostgreSQL (Cloud Database URL - takes precedence over individual postgres settings)
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "")
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
     POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", "5432"))
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "emr_system")

@@ -3,6 +3,10 @@ DEVELOPMENT_GUIDE.md
 detail.txt
 STEP_BY_STEP_IMPLEMENTATION_GUIDE.md
 *.md
+COMPLETE_VIVA_STUDY_GUIDE_FULL.html
+COMPLETE_VIVA_STUDY_GUIDE.html
 venv/
 __pycache__/
 ilovepdf_images-extracted/
+.env
+txt

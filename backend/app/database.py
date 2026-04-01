@@ -3,8 +3,11 @@ from sqlalchemy.orm import sessionmaker
 from app.config import settings
 from app.models.database_models import Base
 
-# Create database URL
-DATABASE_URL = f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+# Create database URL - use Neon DATABASE_URL if available, otherwise construct from settings
+if settings.DATABASE_URL and settings.DATABASE_URL.strip():
+    DATABASE_URL = settings.DATABASE_URL
+else:
+    DATABASE_URL = f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
 
 # Create engine
 engine = create_engine(DATABASE_URL, echo=False, connect_args={"connect_timeout": 5})
